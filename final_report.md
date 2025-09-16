@@ -24,6 +24,17 @@ The first step consisted of performing an **Exploratory Data Analysis (EDA)**. I
   - From a data-driven perspective, I chose **t = 200 days**, which occurs early enough in most batch lifecycles that corrective measures can still be taken.
   - I chose **H = 730 days (2 years)**, as it provides enough time for cohorts to become profitable. The data indicated that these are not short-term investments (less than one year) but rather long-term commitments.  
 
+The following image shows the evolution of the each batch ROI as a function of the number of days passed since the batch was allowed. Looking at this plot we can see that all batches behave somewhat similarly, and that the ROI for all of them have a fast increase, specially in their first year of the batch existence. After this first rapid growth phase, the ROI increase starts to slow down and enters an "almost-plateau" region.
+
+<img src="notebooks/Figures/batch_ROI_vs_days.png" width="800" height="400">
+
+If we take a look on the ROI average between all batches, we can justify our choice for **t** and pick a value that can be informative of the batch ROI growth and the start of its "almost-plateau" phase. Bellow we have a plot showing exactly this, the average ROI curve between all cohorts, and from this we can safely say that, on average, after 200 days a cohort should already be past its initial fast ROI increase stage, making it a good candidate for decision time **t**. A more aggressive choice could be made taking **t\<200 days**, but it could also lead to higher risks since less would be known about the batches and its loan taking (and payment) behaviour. Similarly, a safer option could be **t\>200 days**, but this approach could also bring risks since it may be too far along the cohort lifecicle to apply any measures to make it profitable.
+
+<img src="notebooks/Figures/batch_mean_roi.png" width="800" height="400">
+
+
+We can also motivate the choice of the horizon H on the behaviour of the mean batch ROI curve. We see that after around two years (730 days) the mean ROI can cross the threshold from negative to positive (in the 95% CI). Therefore, this can be a good choice for H, since on average we can expect a cohort to become lucrative from here on out.
+
 ---
 ## Modeling Approach
 
@@ -33,10 +44,18 @@ The modeling process consisted of:
 2. **Model Selection**: Tested baseline regressors and gradient boosting models.  
 3. **Evaluation Metrics**: Root Mean Squared Error (RMSE) and Mean Absolute Error (MAE) were the primary evaluation metrics. Additionally, ROI prediction accuracy by batch was considered.
 
+Here I tested four different models, separated in two different scenarios. However, all four models are XBGRegressor based.
+Both scenarios aim to predict ROI(H) of our cohorts. 
+
+  **Scenario 1** only consider loans up to the decision time t when computing the true ROI(H) of the cohorts.
+  **Scenario 2** considers all loans up to the horizon H in the computation of the true ROI(H) of the cohorts. 
+  
+These different scenarios lead to a fundamental change in interpretation of the models depending on which one you choose.
+
 ---
 ## Results
 
-- **Best Model**: XGBoost -- Scenario 1, Model 2 with filtered dataset (90% upper percentile of loan amount removed).  
+- **Best Model**: XBGRegressor -- Scenario 1, Model 2 with filtered dataset (90% upper percentile of loan amount removed).  
 - **Evaluation Metrics**:  
   - RMSE: 0.007775  
   - MAE: 0.006783  
